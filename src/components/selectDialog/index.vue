@@ -1,6 +1,6 @@
 <template>
     <div class="select-dialog" >
-        <el-dialog class="my-dialog" :title="title" top="5vh" :visible.sync="visible"   :before-close="closeDialog">
+        <el-dialog class="my-dialog" @open="initDialog" :title="title" top="5vh" :visible.sync="visible" :before-close="closeDialog">
             <!-- 头部内容 start -->
             <div class="header-box">
                 <slot name="search"></slot>
@@ -11,7 +11,7 @@
             <el-table 
                 ref="selectTable"
                 :data="tableData"
-                :row-key="(row) => row.code"
+                row-key="code"
                 @select="handleSelect"
                 @select-all="handleSelectAll"
             >
@@ -84,14 +84,6 @@ export default {
 
             // 用户选中的数据
             selectionList: [], 
-        }
-    },
-    watch: {
-        visible(val) {
-            if (val) {
-                // 值为true时，执行初始化
-                this.initDialog();
-            }
         }
     },
     methods: {
