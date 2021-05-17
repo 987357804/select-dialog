@@ -12,8 +12,7 @@
                 ref="selectTable"
                 :data="tableData"
                 row-key="code"
-                @select="handleSelect"
-                @select-all="handleSelectAll"
+                @selection-change="selectionList = $event"
             >
                 <el-table-column width="55" v-if="isSingle">
                     <template slot-scope="{row}">
@@ -90,38 +89,15 @@ export default {
 
         // 初始化弹窗 —— 弹窗打开时触发
         initDialog() {
-            this.selectionList = this.value.map(item => ({...item, code: item[this.valueKey]}));
+            if (this.isSingle) {
+                this.selectionList = this.value.map(item => ({ ...item, code: item[this.valueKey] }))
+            } else {
+                this.value.forEach(item => {
+                    const newObj = {...item, code: item[this.valueKey]};
+                    this.$refs.selectTable.toggleRowSelection(newObj)
+                });
+            }
             this.getData();
-        },
-
-        // 多选——选中
-        handleSelect(selection, row) {
-            // 判断是选择/取消
-            const isSelect = selection.find(item => item.code === row.code);
-            if(isSelect) {
-                this.selectionList.push(row);
-            } else {
-                const index = this.selectionList.findIndex(item => item.code === row.code);
-                this.selectionList.splice(index, 1);
-            }
-        },
-
-        // 多选——全选
-        handleSelectAll(selection) {
-            // 判断是否全选
-            if(selection.length > 0) {
-                this.tableData.forEach(item => {
-                    const isHas = this.selectionList.find(sItem => sItem.code === item.code)
-                    if(!isHas) {
-                        this.selectionList.push(item);
-                    }
-                })
-            } else {
-                this.tableData.forEach(item => {
-                    const index = this.selectionList.findIndex(sItem => item.code === sItem.code);
-                    this.selectionList.splice(index, 1);
-                })
-            }
         },
 
         // 监听分页切换
@@ -135,11 +111,7 @@ export default {
             this.value.forEach(item => {
                 const isHas = this.tableData.find(sItem => item.code === sItem.code);
                 if (isHas) {
-                    if (this.isSingle) {
-                        this.radioValue = isHas;
-                    } else {
-                        this.$refs.selectTable.toggleRowSelection(isHas);
-                    }
+                    this.radioValue = isHas;
                 }
             })
         },
@@ -177,7 +149,9 @@ export default {
                     return newItem
                 })
                 this.tableTotal = res.count;
-                this.initSeletion();
+                if (this.isSingle) {
+                    this.initSeletion();
+                }
             } catch (error) {
                 console.log('error: ', error);
             }
