@@ -1,6 +1,6 @@
 import Axios from 'axios';
 
-// const baseURL = 'http://47.113.124.44:20042/portal2/rest/'
+const baseURL = 'http://47.113.124.44:20042/portal2/rest/'
 
 // 新建实例
 const service = Axios.create({
