@@ -59,9 +59,9 @@ export default {
         searchParams: { type: Object, default: {} },
         api: { type: Function },
         isSingle: { type: Boolean, default: false },
-        valueKey: { type: String, default: "code" },
-
+        valueKey: { type: String, default: 'code' },
         tableProps: { type: Array, default: [] },
+        dataKey: {type: String, default: 'data'},
     },
     // 定义组件的v-model
     model: {
@@ -134,6 +134,20 @@ export default {
             this.getData();
         },
 
+        // 获取深层对象属性
+        getObjProp(obj, desc) {
+            let arr = desc.split('.');
+            let length = arr.length;
+            if (length === 1) {
+                return obj[arr[0]];
+            } else {
+                for(let i = 0; i < length; i++) {
+                    obj = obj[arr[i]];
+                }
+                return obj;
+            }
+        },
+
         // 获取设备列表
         async getData() {
             const params = {
@@ -142,11 +156,10 @@ export default {
             }
             try {
                 const res = await this.api(params);
-                // warning: 需要根据数据结构作修改
-                const data = res.list || res.data;
-                this.tableData = data.map(item => {
-                    let newItem = {...item, code: item[this.valueKey]}
-                    return newItem
+                const data = this.getObjProp(res, this.dataKey);
+                this.tableData = data?.map(item => {
+                    let newItem = {...item, code: item[this.valueKey]};
+                    return newItem;
                 })
                 this.tableTotal = res.count;
                 if (this.isSingle) {

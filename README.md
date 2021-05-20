@@ -22,6 +22,7 @@ element-ui：
 | searchParams | 搜索参数 | Object | —— | —— |
 | api | 获取列表接口函数 | Funtion | —— | —— |
 | value-key | 数据唯一标识的键名 | String | —— | code |
+| data-key | 接口返回的数据字段，可多层访问，如："data.user.name" 或 "list.1.data" | String | —— | data |
 
 #### 列表格式
 | 属性 | 说明 | 类型 |
@@ -57,16 +58,16 @@ element-ui：
 
 ## 实现功能
 
-- [x] 1、通过v-model双向绑定已选项  
-- [x] 2、打开弹窗已选择数据进行回显  
-- [x] 3、支持单选和多选  
-- [x] 4、头部搜索可通过插槽实现自定义
-- [x] 5、可通过tableProp传值，实现列表配置
-- [x] 6、可自定义数据唯一键名
+- [√] 1、通过v-model双向绑定已选项  
+- [√] 2、打开弹窗已选择数据进行回显  
+- [√] 3、支持单选和多选  
+- [√] 4、头部搜索可通过插槽实现自定义
+- [√] 5、可通过tableProp传值，实现列表配置
+- [√] 6、可自定义数据唯一键名
 
 
 
-## 开发重点流程
+## 难点处理
 #### 1、实现弹窗开关效果  
 **实现过程：**
 通过组件  visible  属性传递控制弹窗开关的变量  deviceShow  ;
@@ -119,7 +120,46 @@ export default {
 }
 </script>
 ```
-  
+#### 2、  实现对象属性可通过字段，深层访问
+**需求描述：**
+使用字段形式，访问多层嵌套的对象，如：var obj = {a: {b: {c: 0}}} 使用字段 "a.b.c" 直接访问
+​
+
+**实现方法：**
+1、使用 eval() 方法  （！！不推荐！！）
+```vue
+var obj = {a: {b: {c: 0}}};
+var propPath = "a.b.c"
+
+eval( 'var result = obj.' + propPath ) // 0
+```
+2、分割路径，循环遍历
+```vue
+var obj = {a: {b: {c: 0}}};
+var propPath = "a.b.c"
+
+getObjProp(obj, desc) {
+
+	// 分割路径
+  let arr = desc.split('.');
+  let length = arr.length;
+	
+	// 判断是否嵌套对象
+  if (length === 1) {
+    return obj[arr[0]];
+  } else {
+    for(let i = 0; i < length; i++) {
+        obj = obj[arr[i]]
+    }
+    return obj
+  }
+},
+                              
+const data = getObjProp(obj, propPath) // 0
+```
+参考：[eval的使用](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/eval#%E8%AE%BF%E9%97%AE%E6%88%90%E5%91%98%E5%B1%9E%E6%80%A7)
+​
+
 ## 封装优点
 #### 1、减少布局结构重复的代码
 如果一个页面需要多个弹窗的时候，在不封装的情况下会出现大量相重复的代码，使代码结构变得非常不简洁。
@@ -142,11 +182,11 @@ export default {
 
 
 ## 后续优化
+#### —— v1.1 ——
 
-- [ ] 简化回显效果
-- [ ] 打开弹窗生命周期
-- [ ] 优化获取数据不同字段名的处理
-- [ ] 完善文档使用案例
+- [√] 简化回显效果
+- [√] 打开弹窗生命周期
+- [√] 优化获取数据不同字段名的处理
 
 
 
@@ -160,3 +200,8 @@ export default {
 - 实现列表框单选/多选功能
 - 实现v-model数据绑定
 - 实现绑定数据回显效果
+
+### v1.0 - 2021.5.20
+- 简化回显效果实现代码
+- 优化开发弹窗生命周期实现
+- 添加 "data-key" 用于配置获取数据字段名

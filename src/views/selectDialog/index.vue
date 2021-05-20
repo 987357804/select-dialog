@@ -49,6 +49,7 @@
             :searchParams='deviceParams'
             @close="deviceShow = false"
             :api="deviceInfoList"
+            data-key="list"
         >
             <template #search>
                 <el-input @keyup.13.native="searchDevice" v-model="deviceParams.key_word" placeholder="请输入名称/SN号/IP地址查询">
